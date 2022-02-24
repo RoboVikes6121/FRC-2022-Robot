@@ -84,6 +84,7 @@ public class Robot extends TimedRobot {
     driveLeftB.setInverted(false);
     driveRightA.setInverted(false);
     driveRightB.setInverted(true);
+    
     driveLeftB.follow(driveLeftA);
     driveRightB.follow(driveRightA);
     arm.setInverted(false);
@@ -95,6 +96,9 @@ public class Robot extends TimedRobot {
     driveLeftA.configClearPositionOnLimitF(false, 0);
     driveLeftA.configClearPositionOnLimitR(false, 0);
     driveLeftA.configClearPositionOnQuadIdx(false, 0);
+    arm.configClearPositionOnLimitF(false, 0);
+    arm.configClearPositionOnLimitR(false, 0);
+    arm.configClearPositionOnQuadIdx(false, 0);
     // set to false to track position
     // set to true to stop tracking and reset to 0
     // tedious
@@ -111,6 +115,7 @@ public class Robot extends TimedRobot {
     m_timer.start();
     driveLeftA.setSelectedSensorPosition(0);
     driveRightA.setSelectedSensorPosition(0);
+    arm.setSelectedSensorPosition(0);
   }
  
   /** This function is called periodically during autonomous. */
@@ -179,6 +184,7 @@ public class Robot extends TimedRobot {
   public void teleopInit() {
     driveLeftB.follow(driveLeftA);
     driveRightB.follow(driveRightA);
+  //  arm.set(ControlMode.PercentOutput, .8);
   }
 
   /** This function is called periodically during operator control. */
@@ -191,6 +197,7 @@ public class Robot extends TimedRobot {
 		//turningValue = Math.copySign(turningValue, driver.getLeftY());
     double forward = 0;
     double turn = 0;
+  
     // if(driver.getLeftX() < .1 && driver.getLeftX() > -.1){
       // turn = 0;
     // }
@@ -205,8 +212,8 @@ public class Robot extends TimedRobot {
     double driveLeftPower = forward*speedMultiplier - turn;
     double driveRightPower = forward*RightAdjust + turn;
    
-
-
+    
+    intake.set(.3);
     driveLeftA.set(ControlMode.PercentOutput, driveLeftPower);
     //driveLeftB.set(ControlMode.PercentOutput, driveLeftPower);
     driveRightA.set(ControlMode.PercentOutput, driveRightPower);
@@ -215,11 +222,22 @@ public class Robot extends TimedRobot {
     //Intake controls
      if(operator.getRawButton(11)){
     //  if(driver.getAButton()){
-      intake.set(.3);
-      arm.set(ControlMode.PercentOutput, .3);
       
+      arm.set(ControlMode.PercentOutput, .2);
       //armUp = false;
+      System.out.println("11");
     }
+    
+    else if(operator.getRawButton(10)){
+      //  if(driver.getAButton()){
+        
+        arm.set(ControlMode.PercentOutput, -.2);
+        System.out.println("10");
+        //armUp = false;
+      }
+      else{
+        arm.set(ControlMode.PercentOutput, 0);
+      }
      //else if(operator.getRawButton(13)){
     //  else if(driver.getBButton()){
       //intake.set(0.3);
@@ -229,33 +247,33 @@ public class Robot extends TimedRobot {
     //}
 
     //Arm Controls
-    if(armUp){
-      if(Timer.getFPGATimestamp() - lastBurstTime < armTimeUp){
-        arm.set(ControlMode.Position,armHoldUp);
-      }
-      else{
-        arm.set(ControlMode.Position,armHoldUp);
-      }
-    }
-    else{
-      if(Timer.getFPGATimestamp() - lastBurstTime < armTimeDown){
-        arm.set(ControlMode.Position,-armTravel);
-      }
-      else{
-        arm.set(ControlMode.Position,-armHoldDown);
-      }
-    }
+    // if(armUp){
+    //   if(Timer.getFPGATimestamp() - lastBurstTime < armTimeUp){
+    //     arm.set(ControlMode.Position,armHoldUp);
+    //   }
+    //   else{
+    //     arm.set(ControlMode.Position,armHoldUp);
+    //   }
+    // }
+    // else{
+    //   if(Timer.getFPGATimestamp() - lastBurstTime < armTimeDown){
+    //     arm.set(ControlMode.Position,-armTravel);
+    //   }
+    //   else{
+    //     arm.set(ControlMode.Position,-armHoldDown);
+    //   }
+    // }
   
-     if(operator.getRawButtonPressed(14) && !armUp){
-    //  if(driver.getYButton()){
-      lastBurstTime = Timer.getFPGATimestamp();
-      armUp = true;
-    }
-     else if(operator.getRawButtonPressed(16) && armUp){
-    //  else if(driver.getXButton()){
-      lastBurstTime = Timer.getFPGATimestamp();
-      armUp = false;
-    }  
+    //  if(operator.getRawButtonPressed(14) && !armUp){
+    // //  if(driver.getYButton()){
+    //   lastBurstTime = Timer.getFPGATimestamp();
+    //   armUp = true;
+    // }
+    //  else if(operator.getRawButtonPressed(16) && armUp){
+    // //  else if(driver.getXButton()){
+    //   lastBurstTime = Timer.getFPGATimestamp();
+    //   armUp = false;
+    // }  
 
   }
 
