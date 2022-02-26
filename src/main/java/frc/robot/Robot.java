@@ -205,7 +205,7 @@ public class Robot extends TimedRobot {
     double driveRightPower = forward*RightAdjust + turn;
    
     
-    intake.set(.3);
+    intake.set(ControlMode.PercentOutput, .3);
     driveLeftA.set(ControlMode.PercentOutput, driveLeftPower);
     //driveLeftB.set(ControlMode.PercentOutput, driveLeftPower);
     driveRightA.set(ControlMode.PercentOutput, driveRightPower);
@@ -278,7 +278,7 @@ public class Robot extends TimedRobot {
     driveRightA.set(ControlMode.PercentOutput, 0);
     driveRightB.set(ControlMode.PercentOutput, 0);
     arm.set(ControlMode.Position,0);
-    intake.set(0);
+    intake.set(ControlMode.PercentOutput, 0);
   }
   public void driveForward(double power){
 
