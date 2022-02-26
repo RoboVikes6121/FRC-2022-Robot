@@ -1,14 +1,6 @@
-/*
-//WPILi
-  2022 everybot code
-  written by carson graf 
-  don't email me, @ me on discord
-*/
 
-/*
-  This is catastrophically poorly written code for the sake of being easy to follow
-  If you know what the word "refactor" means, you should refactor this code
-*/
+
+
 
 package frc.robot;
 
@@ -45,7 +37,7 @@ public class Robot extends TimedRobot {
   double RightAdjust = 0.73;
   Timer m_timer = new Timer();
   TalonFX arm = new TalonFX(5);
-  CANSparkMax intake = new CANSparkMax(6, MotorType.kBrushless);
+  VictorSPX intake = new VictorSPX(6);
   private static final double kAngleSetpoint = 0.0;
 	private static final double kP = 0.005; // propotional turning constant
 
@@ -222,8 +214,8 @@ public class Robot extends TimedRobot {
     //Intake controls
      if(operator.getRawButton(11)){
     //  if(driver.getAButton()){
-      
-      arm.set(ControlMode.PercentOutput, .2);
+      arm.set(ControlMode.Position, 0);
+      //arm.set(ControlMode.PercentOutput, .2);
       //armUp = false;
       System.out.println("11");
     }
@@ -231,12 +223,12 @@ public class Robot extends TimedRobot {
     else if(operator.getRawButton(10)){
       //  if(driver.getAButton()){
         
-        arm.set(ControlMode.PercentOutput, -.2);
+        arm.set(ControlMode.Position, 10);
         System.out.println("10");
         //armUp = false;
       }
       else{
-        arm.set(ControlMode.PercentOutput, 0);
+        arm.set(ControlMode.Position, 0);
       }
      //else if(operator.getRawButton(13)){
     //  else if(driver.getBButton()){
