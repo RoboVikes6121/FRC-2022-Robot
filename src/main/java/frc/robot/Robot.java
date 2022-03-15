@@ -42,11 +42,14 @@ public class Robot extends TimedRobot {
   Constant constant = new Constant();
   
   
+  DigitalInput downwardlimitswitch = new DigitalInput(0);
+  DigitalInput upwardlimitswitch = new DigitalInput(1);
   //ouble RightAdjust = .65;
   Timer m_timer = new Timer();
   TalonFX a = new TalonFX(5);
   Arm arm = new Arm(a);
-  VictorSPX intake = new VictorSPX(6);
+  VictorSPX i = new VictorSPX(6);
+  Intake intake = new Intake(i);
   UsbCamera camera1;
   UsbCamera camera2;
   //private static final double kAngleSetpoint = 0.0;
@@ -176,16 +179,16 @@ public class Robot extends TimedRobot {
 
     boolean toggle = false;
 if(constant.godown){
-  arm.set(ControlMode.PercentOutput, -.3);
+  arm.armGoDown();
   if(downwardlimitswitch.get()==false){
-    arm.set(ControlMode.PercentOutput, 0);
+    arm.armStop();
     constant.godown = false;
   }
 }
 if(constant.goup){
-  arm.set(ControlMode.PercentOutput, .4);
+  arm.armGoUp();
   if(upwardlimitswitch.get()==false){
-    arm.set(ControlMode.PercentOutput, 0);
+    arm.armStop();
     constant.goup = false;
   }
 }
@@ -196,7 +199,7 @@ if(constant.goup){
     constant.godown = true;
      SmartDashboard.putString("arm position", "down");
     
-     intakeBall();
+     intake.OhmNom();
      }
      if(operator.getRawButton(11)){
        //button 11 pressed arm up stop intake
@@ -209,24 +212,25 @@ if(constant.goup){
     }
     if(operator.getRawButton(12)){
         //button 12 pressed intake ball
-        intakeBall();
+        intake.OhmNom();
     }
     if(operator.getRawButton(15)){
         //button 15 pressed stop rollers
         
-        stopIntake();
+        intake.StopIntake();
       }
     if(operator.getRawButton(constant.button13)){
         //button 13 pressed eject ball
-          ejectBall(.90);
+        // fast shooter
+          intake.PewPew(.90);
         }
          //set to 0
-      /*if(operator.getRawButton(14)){
-        goup = false;
-        godown = false;
-      }*/
+      if(operator.getRawButton(14)){
+        arm.armStop();
+      }
       if(operator.getRawButton(7)){
-        ejectBall(.3);
+        intake.PewPew(.3);
+        // slow shooter
       }
       else{
         //when buttons are not pressed
@@ -244,7 +248,7 @@ if(constant.goup){
     driveRightA.set(ControlMode.PercentOutput, 0);
     driveRightB.set(ControlMode.PercentOutput, 0);
     //arm.set(ControlMode.Position,0);
-    intake.set(ControlMode.PercentOutput, 0);
+    intake.StopIntake();
    // SmartDashboard.putBoolean("down switch", downwardlimitswitch.get());
     //SmartDashboard.putBoolean("up switch", upwardlimitswitch.get());
   }
@@ -326,9 +330,6 @@ if(constant.goup){
   public void stopIntake(){
     intake.set(ControlMode.PercentOutput, 0);
   }*/
-  public void ejectBall(double speed){
-    intake.set(ControlMode.PercentOutput, -speed);
-  }
 
   public void leftAuton(){
   //starting on the left side

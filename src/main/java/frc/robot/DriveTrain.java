@@ -10,9 +10,9 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 /** Add your docs here. */
 public class DriveTrain {
     TalonSRX driveLeftA; 
-        TalonSRX driveLeftB;
-        TalonSRX driveRightA;
-        TalonSRX driveRightB;
+    TalonSRX driveLeftB;
+    TalonSRX driveRightA;
+    TalonSRX driveRightB;
 
     public DriveTrain(TalonSRX la, TalonSRX lb, TalonSRX ra, TalonSRX rb){
         //initialize the motors from the constructor

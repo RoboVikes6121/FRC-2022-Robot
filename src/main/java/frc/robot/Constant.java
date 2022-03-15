@@ -19,14 +19,13 @@ public class Constant {
     boolean armUp = true;
     boolean burstMode = false;
     double lastBurstTime = 0;
-    DigitalInput downwardlimitswitch = new DigitalInput(0);
-    DigitalInput upwardlimitswitch = new DigitalInput(1);
     boolean godown = false;
     boolean goup = false;
     double autoStart = 0;
     boolean goForAuto = false;
     final int button13 = 13;
     double speedMultiplier = 0.7;
+    double shooterSpeed = 0.9;
 
     
     public void intakeBall(){
