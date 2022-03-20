@@ -14,7 +14,7 @@ public class Intake {
 public static void OhmNom() {
     Motor.set(ControlMode.PercentOutput, .5);
 }
-public static void PewPew(double  Speed) {
+public static void  PewPew(double  Speed) {
     Motor.set(ControlMode.PercentOutput, -Speed);
 
 }
