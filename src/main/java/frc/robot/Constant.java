@@ -24,8 +24,8 @@ public class Constant {
     double autoStart = 0;
     boolean goForAuto = false;
     final int button13 = 13;
-    double speedMultiplier = 0.7;
-    double shooterSpeed = 0.9;
+    static double speedMultiplier = 0.7;
+    static double shooterSpeed = 0.9;
 
     
     public void intakeBall(){
@@ -33,9 +33,9 @@ public class Constant {
         //intake.set(ControlMode.PercentOutput, .5); // ohm nom
     
       }
-      public void stopIntake(){
+      // public void stopIntake(){
       //  intake.set(ControlMode.PercentOutput, 0);
-      }
+      // }
      
   
 }

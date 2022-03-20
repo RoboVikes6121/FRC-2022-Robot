@@ -44,12 +44,12 @@ public class Robot extends TimedRobot {
   
   DigitalInput downwardlimitswitch = new DigitalInput(0);
   DigitalInput upwardlimitswitch = new DigitalInput(1);
-  //ouble RightAdjust = .65;
+  double RightAdjust = .65;
   Timer m_timer = new Timer();
   TalonFX a = new TalonFX(5);
   Arm arm = new Arm(a);
-  VictorSPX i = new VictorSPX(6);
-  Intake intake = new Intake(i);
+  
+  
   UsbCamera camera1;
   UsbCamera camera2;
   //private static final double kAngleSetpoint = 0.0;
@@ -199,7 +199,7 @@ if(constant.goup){
     constant.godown = true;
      SmartDashboard.putString("arm position", "down");
     
-     intake.OhmNom();
+     Intake.OhmNom();
      }
      if(operator.getRawButton(11)){
        //button 11 pressed arm up stop intake
@@ -212,30 +212,28 @@ if(constant.goup){
     }
     if(operator.getRawButton(12)){
         //button 12 pressed intake ball
-        intake.OhmNom();
-    }
-    if(operator.getRawButton(15)){
-        //button 15 pressed stop rollers
-        
-        intake.StopIntake();
+        Intake.OhmNom();
+    }else if(operator.getRawButton(constant.button13)){
+      //button 13 pressed eject ball
+      // fast shooter
+        Intake.PewPew(Constant.shooterSpeed);
+      }else{
+        Intake.StopIntake();
       }
-    if(operator.getRawButton(constant.button13)){
-        //button 13 pressed eject ball
-        // fast shooter
-          intake.PewPew(.90);
-        }
+    // if(operator.getRawButton(15)){
+    //     //button 15 pressed stop rollers
+        
+    //     intake.StopIntake();
+    //   }
+    
          //set to 0
       if(operator.getRawButton(14)){
         arm.armStop();
       }
       if(operator.getRawButton(7)){
-        intake.PewPew(.3);
+        Intake.PewPew(Constant.shooterSpeed);
         // slow shooter
       }
-      else{
-        //when buttons are not pressed
-        constant.speedMultiplier = .7;
-     }
 
     }
 
@@ -248,11 +246,11 @@ if(constant.goup){
     driveRightA.set(ControlMode.PercentOutput, 0);
     driveRightB.set(ControlMode.PercentOutput, 0);
     //arm.set(ControlMode.Position,0);
-    intake.StopIntake();
+    Intake.StopIntake();
    // SmartDashboard.putBoolean("down switch", downwardlimitswitch.get());
     //SmartDashboard.putBoolean("up switch", upwardlimitswitch.get());
   }
- /**  public void driveForward(double power){
+   public void driveForward(double power){
     driveLeftA.set(ControlMode.PercentOutput, power);
     driveRightA.set(ControlMode.PercentOutput, power);
 }
@@ -275,41 +273,41 @@ if(constant.goup){
   public void forwardTurnRight(double power){
     driveLeftA.set(ControlMode.PercentOutput, +power);
     driveRightA.set(ControlMode.PercentOutput, -power);
-  }*/
+  }
 
-  /*public void armUp(){
+  public void armUp(){
      
     SmartDashboard.putString("arm position", "up");
-    while(arm.getSelectedSensorPosition() < -0){ 
+    while(arm.arm.getSelectedSensorPosition() < -0){ 
       double forward = -driver.getLeftY();
-      double turn = -driver.getRightX()*speedMultiplier;
+      double turn = -driver.getRightX()*Constant.speedMultiplier;
       //speedMultiplier = .2;
       //RightAdjust = .2;
-      double driveLeftPower = forward*speedMultiplier - turn;
+      double driveLeftPower = forward*Constant.speedMultiplier - turn;
       double driveRightPower = forward*RightAdjust + turn;
      
       
       
       driveLeftA.set(ControlMode.PercentOutput, driveLeftPower);
       driveRightA.set(ControlMode.PercentOutput, driveRightPower);
-    arm.set(ControlMode.PercentOutput, .2); // yeserdy was set to .35
+    arm.arm.set(ControlMode.PercentOutput, .2); // yeserdy was set to .35
     }
   //  else{
-    arm.set(ControlMode.PercentOutput, 0);
+    arm.arm.set(ControlMode.PercentOutput, 0);
   // }
 }
- /* public void armDown(){
+  public void armDown(){
    // arm.set(ControlMode.Position, 0);
     SmartDashboard.putString("arm position", "down");
-    while(arm.getSelectedSensorPosition() > -85000){ 
-     arm.set(ControlMode.PercentOutput, -.2); // yesterday as set to -.4
+    while(arm.arm.getSelectedSensorPosition() > -85000){ 
+     arm.arm.set(ControlMode.PercentOutput, -.2); // yesterday as set to -.4
      double forward = -driver.getLeftY();
 
-     double turn = -driver.getRightX()*speedMultiplier;
+     double turn = -driver.getRightX()*Constant.speedMultiplier;
      //speedMultiplier = .2;
       //RightAdjust = .2;
       
-     double driveLeftPower = forward*speedMultiplier - turn;
+     double driveLeftPower = forward*Constant.speedMultiplier - turn;
      double driveRightPower = forward*RightAdjust + turn;
     
      
@@ -318,18 +316,9 @@ if(constant.goup){
      driveRightA.set(ControlMode.PercentOutput, driveRightPower);
      }
   //  else{
-     arm.set(ControlMode.PercentOutput, 0);
+     arm.arm.set(ControlMode.PercentOutput, 0);
   //   }
   }
-*/
- /**   public void intakeBall(){
-
-    intake.set(ControlMode.PercentOutput, .5); // ohm nom
-
-  }
-  public void stopIntake(){
-    intake.set(ControlMode.PercentOutput, 0);
-  }*/
 
   public void leftAuton(){
   //starting on the left side
@@ -343,7 +332,7 @@ if(constant.goup){
    turnLeft(.3);
   }
   else if(m_timer.get() > 1.9 & m_timer.get() < 4.4){
-   ejectBall(.9);
+   Intake.PewPew(Constant.shooterSpeed);
   }
   else if(m_timer.get() > 4.4 & m_timer.get() < 8.4){
    driveForward(-.4);
@@ -363,7 +352,7 @@ if(constant.goup){
    turnRight(.3);
  } 
  else if(m_timer.get() > 1.9 & m_timer.get() < 4.4){
-   ejectBall(.9);
+   Intake.PewPew(Constant.shooterSpeed);
  }
  else if(m_timer.get() > 4.4 & m_timer.get() < 8.4){
    driveForward(-.4);
@@ -383,7 +372,7 @@ if (m_timer.get() < 0){
   driveForward(0);
 }
   else if(m_timer.get() > 0 & m_timer.get() < 2){
-    ejectBall(.9);
+    Intake.PewPew(Constant.shooterSpeed);
 }
   else if(m_timer.get() > 2 & m_timer.get() < 8){
     driveForward(-.3);
@@ -402,7 +391,7 @@ if (m_timer.get() < 0){
       driveForward(0);
     }
       else if(m_timer.get() > 0 & m_timer.get() < 2){
-        ejectBall(.9);
+        Intake.PewPew(Constant.shooterSpeed);;
     }
       else if(m_timer.get() > 2 & m_timer.get() < 6){
         driveForward(0);

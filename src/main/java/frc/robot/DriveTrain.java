@@ -24,7 +24,7 @@ public class DriveTrain {
 
     driveLeftA.setInverted(false);
     driveLeftB.setInverted(false);
-    driveRightA.setInverted(false);
+    driveRightA.setInverted(true);  // ??????????????
     driveRightB.setInverted(true);
    
     //SmartDashboard.putBoolean("right auton", startRight);

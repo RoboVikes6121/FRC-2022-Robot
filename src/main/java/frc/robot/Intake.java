@@ -9,18 +9,16 @@ import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 
 /** Add your docs here. */
 public class Intake {  
-    VictorSPX Motor; 
-    public Intake(VictorSPX V){
-    Motor = V;  
-    }
-public void OhmNom() {
+    static VictorSPX Motor = new VictorSPX(6);
+
+public static void OhmNom() {
     Motor.set(ControlMode.PercentOutput, .5);
 }
-public void PewPew(double  Speed) {
+public static void PewPew(double  Speed) {
     Motor.set(ControlMode.PercentOutput, -Speed);
 
 }
-public void StopIntake() {
+public static void StopIntake() {
     Motor.set(ControlMode.PercentOutput, 0);
     
 }
