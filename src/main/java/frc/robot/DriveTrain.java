@@ -6,20 +6,28 @@ package frc.robot;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 
 /** Add your docs here. */
 public class DriveTrain {
-    TalonSRX driveLeftA; 
-    TalonSRX driveLeftB;
-    TalonSRX driveRightA;
-    TalonSRX driveRightB;
+  static WPI_TalonSRX driveLeftA = new WPI_TalonSRX(3);
+  static WPI_TalonSRX driveLeftB = new WPI_TalonSRX(4);
+  static WPI_TalonSRX driveRightA = new WPI_TalonSRX(1);
+  static WPI_TalonSRX driveRightB = new WPI_TalonSRX(2);
+  static MotorControllerGroup leftMotors = new MotorControllerGroup(driveLeftA, driveLeftB);
+  static MotorControllerGroup rightMotors = new MotorControllerGroup(driveRightA, driveRightB);
+  static DifferentialDrive differentialDrive = new DifferentialDrive(leftMotors, rightMotors);
 
-    public DriveTrain(TalonSRX la, TalonSRX lb, TalonSRX ra, TalonSRX rb){
+
+    public static void DriveTrainInit(){
         //initialize the motors from the constructor
-    TalonSRX driveLeftA = la;
-    TalonSRX driveLeftB = lb;
-    TalonSRX driveRightA = ra;
-    TalonSRX driveRightB = rb;
+    // WPI_TalonSRX driveLeftA = la;
+    // WPI_TalonSRX driveLeftB = lb;
+    // WPI_TalonSRX driveRightA = ra;
+    // WPI_TalonSRX driveRightB = rb;
         
 
     driveLeftA.setInverted(false);

@@ -11,6 +11,7 @@ import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 
 import edu.wpi.first.cameraserver.CameraServer;
@@ -22,6 +23,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 //import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 
@@ -34,20 +36,25 @@ import edu.wpi.first.wpilibj.XboxController;
 
 public class Robot extends TimedRobot {
   //Definitions for the hardware. Change this if you change what stuff you have plugged in
-  TalonSRX driveLeftA = new TalonSRX(3);
-  TalonSRX driveLeftB = new TalonSRX(4);
-  TalonSRX driveRightA = new TalonSRX(1);
-  TalonSRX driveRightB = new TalonSRX(2);
-  DriveTrain drivetrain = new DriveTrain(driveLeftA, driveLeftB, driveRightA, driveRightB);
-  Constant constant = new Constant();
+  // WPI_TalonSRX driveLeftA = new WPI_TalonSRX(3);
+  // WPI_TalonSRX driveLeftB = new WPI_TalonSRX(4);
+  // WPI_TalonSRX driveRightA = new WPI_TalonSRX(1);
+  // WPI_TalonSRX driveRightB = new WPI_TalonSRX(2);
+  // DriveTrain drivetrain = new DriveTrain(driveLeftA, driveLeftB, driveRightA, driveRightB);
+  
   
   
   DigitalInput downwardlimitswitch = new DigitalInput(0);
   DigitalInput upwardlimitswitch = new DigitalInput(1);
-  double RightAdjust = .65;
+  // double RightAdjust = .65;
   Timer m_timer = new Timer();
   TalonFX a = new TalonFX(5);
   Arm arm = new Arm(a);
+  double forward = 0;
+  double turn = 0;
+  boolean speedClutch = false;
+  private final SendableChooser<String> chooser = new SendableChooser<>();
+  private String autoSelected;
   
   
   UsbCamera camera1;
@@ -105,6 +112,7 @@ public class Robot extends TimedRobot {
     // configuring the b motor to follow the a motor
     //driveLeftB.follow(driveLeftA);
     //driveRightB.follow(driveRightA);
+    DriveTrain.DriveTrainInit();
 
    //not sure if needed, may remove
     // driveRightA.configClearPositionOnLimitF(false, 0);
@@ -127,6 +135,12 @@ public class Robot extends TimedRobot {
     //add a thing on the dashboard to turn off auto if needed
    // SmartDashboard.putBoolean("Go For Auto", false);
     //goForAuto = SmartDashboard.getBoolean("Go For Auto", false);
+
+    //Auton selector in smartdashboard
+    chooser.setDefaultOption("Middle Auton", Constant.kMiddleAuton);
+    chooser.addOption("Left Auton", Constant.kLeftAuton);
+    chooser.addOption("Right Auton", Constant.kRightAuton);
+    chooser.addOption("Center Auton", Constant.kCenterAuton);
   }
 
   @Override
@@ -141,10 +155,19 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousPeriodic() { 
    
+    if(autoSelected.equals(Constant.kLeftAuton)){
+      leftAuton();
+    }else if(autoSelected.equals(Constant.kRightAuton)){
+      rightAuton();
+    }else if(autoSelected.equals(Constant.kCenterAuton)){
+      centerAuton();
+    }else{
+      middleAuton();
+    }
     //leftAuton();
     //rightAuton();
     //centerAuton();
-    middleAuton();
+    // middleAuton();
 
   }
 
@@ -160,60 +183,63 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    double forward = 0;
-    double turn = 0;
+
     // SmartDashboard.putNumber("left drive power", driveLeftA.getActiveTrajectoryVelocity());
     // SmartDashboard.putNumber("right drive power", driveRightA.getActiveTrajectoryVelocity());
     //SmartDashboard.putNumber("arm angle", arm.getSelectedSensorPosition());
     forward = -driver.getLeftY();
-    turn = -driver.getRightX()*constant.speedMultiplier;
+    turn = -driver.getRightX() * Constant.speedMultiplier;
     
-    double driveLeftPower = forward*constant.speedMultiplier - turn;
-    double driveRightPower = forward*constant.speedMultiplier + turn;
+    double driveLeftPower = forward * Constant.speedMultiplier - turn;
+    double driveRightPower = forward * Constant.speedMultiplier + turn;
     SmartDashboard.putBoolean("down switch", downwardlimitswitch.get());
     SmartDashboard.putBoolean("up switch", upwardlimitswitch.get());
     
-    
-    driveLeftA.set(ControlMode.PercentOutput, driveLeftPower);
-    driveRightA.set(ControlMode.PercentOutput, driveRightPower);
+         //Speed Clutch Control
+    if(driver.getRightBumper() == true){
+      speedClutch = true;
+    }
+    if(speedClutch){
+      // DriveTrain.driveLeftA.set(ControlMode.PercentOutput, driveLeftPower);
+      // DriveTrain.driveRightA.set(ControlMode.PercentOutput, driveRightPower);
+      DriveTrain.differentialDrive.arcadeDrive((forward * Constant.speedMultiplier), (turn * Constant.speedMultiplier));
+    }else{
+      // DriveTrain.driveLeftA.set(ControlMode.PercentOutput, (forward - turn));
+      // DriveTrain.driveRightA.set(ControlMode.PercentOutput, (forward + turn));
+      DriveTrain.differentialDrive.arcadeDrive(forward, turn);
+    }
 
-    boolean toggle = false;
-if(constant.godown){
-  arm.armGoDown();
-  if(downwardlimitswitch.get()==false){
-    arm.armStop();
-    constant.godown = false;
-  }
-}
-if(constant.goup){
-  arm.armGoUp();
-  if(upwardlimitswitch.get()==false){
-    arm.armStop();
-    constant.goup = false;
-  }
-}
+
+
     //Intake controls
-     if(operator.getRawButton(16)){ 
+    if(operator.getRawButton(16)){ 
        //button 16 pressed arm down start intake
     // armDown();
-    constant.godown = true;
+    // constant.godown = true;
+      arm.armGoDown();
+      if(downwardlimitswitch.get()==false){
+        arm.armStop();
+      
+      }
      SmartDashboard.putString("arm position", "down");
-    
-     Intake.OhmNom();
-     }
-     if(operator.getRawButton(11)){
+
+     }else if(operator.getRawButton(11)){
        //button 11 pressed arm up stop intake
     //armUp();
-    constant.goup = true;
+    // constant.goup = true;
+    arm.armGoUp();
+    if(upwardlimitswitch.get()==false){
+      arm.armStop();
+      
+    }
     SmartDashboard.putString("arm position", "up"); 
      }
-    if(driver.getRightBumper() == true){
-      constant.speedMultiplier = .6;
-    }
+
+
     if(operator.getRawButton(12)){
         //button 12 pressed intake ball
         Intake.OhmNom();
-    }else if(operator.getRawButton(constant.button13)){
+    }else if(operator.getRawButton(13)){
       //button 13 pressed eject ball
       // fast shooter
         Intake.PewPew(Constant.shooterSpeed);
@@ -231,7 +257,7 @@ if(constant.goup){
         arm.armStop();
       }
       if(operator.getRawButton(7)){
-        Intake.PewPew(Constant.shooterSpeed);
+        Intake.PewPew(Constant.slowShootSpeed);
         // slow shooter
       }
 
@@ -241,84 +267,98 @@ if(constant.goup){
   public void disabledInit() {
     //On disable turn off everything
     //done to solve issue with motors "remembering" previous setpoints after reenable
-    driveLeftA.set(ControlMode.PercentOutput, 0);
-    driveLeftB.set(ControlMode.PercentOutput, 0);
-    driveRightA.set(ControlMode.PercentOutput, 0);
-    driveRightB.set(ControlMode.PercentOutput, 0);
+    DriveTrain.driveLeftA.set(ControlMode.PercentOutput, 0);
+    DriveTrain.driveLeftB.set(ControlMode.PercentOutput, 0);
+    DriveTrain.driveRightA.set(ControlMode.PercentOutput, 0);
+    DriveTrain.driveRightB.set(ControlMode.PercentOutput, 0);
     //arm.set(ControlMode.Position,0);
     Intake.StopIntake();
    // SmartDashboard.putBoolean("down switch", downwardlimitswitch.get());
     //SmartDashboard.putBoolean("up switch", upwardlimitswitch.get());
   }
+  @Override
+  public void disabledPeriodic(){
+    //DO NOT PUT ANYTHING ELSE BESIDES AUTO SELECTOR IN HERE - DANGEROUS
+    SmartDashboard.putData("Auto Choices", chooser);
+    autoSelected = chooser.getSelected();
+  }
+
    public void driveForward(double power){
-    driveLeftA.set(ControlMode.PercentOutput, power);
-    driveRightA.set(ControlMode.PercentOutput, power);
+    // DriveTrain.driveLeftA.set(ControlMode.PercentOutput, power);
+    // DriveTrain.driveRightA.set(ControlMode.PercentOutput, power);
+    DriveTrain.differentialDrive.arcadeDrive(power, 0);
 }
   
   public void turnLeft(double power){
 
-    driveLeftA.set(ControlMode.PercentOutput, -power);
-    driveRightA.set(ControlMode.PercentOutput, power);
+    // DriveTrain.driveLeftA.set(ControlMode.PercentOutput, -power);
+    // DriveTrain.driveRightA.set(ControlMode.PercentOutput, power);
+    DriveTrain.differentialDrive.arcadeDrive(0, power);
 
   }
+  /**
+   * DEPRECEATED
+   * @param power sets power to left drive, and inverted power to right drive
+   */
   public void turnRight(double power){
-
-    driveLeftA.set(ControlMode.PercentOutput, power);
-    driveRightA.set(ControlMode.PercentOutput, -power);
+    //THIS IS THE SAME AS TURN LEFT, JUST INVERTED? REDUNDANT, DO NOT USE
+    DriveTrain.driveLeftA.set(ControlMode.PercentOutput, power);
+    DriveTrain.driveRightA.set(ControlMode.PercentOutput, -power);
+    DriveTrain.differentialDrive.arcadeDrive(0, -power);
   }
-  public void forwardTurnLeft(double power){
-    driveLeftA.set(ControlMode.PercentOutput, -power);
-    driveRightA.set(ControlMode.PercentOutput, +power);
-  }
-  public void forwardTurnRight(double power){
-    driveLeftA.set(ControlMode.PercentOutput, +power);
-    driveRightA.set(ControlMode.PercentOutput, -power);
-  }
-
-  public void armUp(){
-     
-    SmartDashboard.putString("arm position", "up");
-    while(arm.arm.getSelectedSensorPosition() < -0){ 
-      double forward = -driver.getLeftY();
-      double turn = -driver.getRightX()*Constant.speedMultiplier;
-      //speedMultiplier = .2;
-      //RightAdjust = .2;
-      double driveLeftPower = forward*Constant.speedMultiplier - turn;
-      double driveRightPower = forward*RightAdjust + turn;
-     
-      
-      
-      driveLeftA.set(ControlMode.PercentOutput, driveLeftPower);
-      driveRightA.set(ControlMode.PercentOutput, driveRightPower);
-    arm.arm.set(ControlMode.PercentOutput, .2); // yeserdy was set to .35
-    }
-  //  else{
-    arm.arm.set(ControlMode.PercentOutput, 0);
+  // public void forwardTurnLeft(double power){
+  //   DriveTrain.driveLeftA.set(ControlMode.PercentOutput, -power);
+  //   DriveTrain.driveRightA.set(ControlMode.PercentOutput, +power);
   // }
-}
-  public void armDown(){
-   // arm.set(ControlMode.Position, 0);
-    SmartDashboard.putString("arm position", "down");
-    while(arm.arm.getSelectedSensorPosition() > -85000){ 
-     arm.arm.set(ControlMode.PercentOutput, -.2); // yesterday as set to -.4
-     double forward = -driver.getLeftY();
+  // public void forwardTurnRight(double power){
+  //   DriveTrain.driveLeftA.set(ControlMode.PercentOutput, +power);
+  //   DriveTrain.driveRightA.set(ControlMode.PercentOutput, -power);
+  // }
 
-     double turn = -driver.getRightX()*Constant.speedMultiplier;
-     //speedMultiplier = .2;
-      //RightAdjust = .2;
+//   public void armUp(){
+     
+//     SmartDashboard.putString("arm position", "up");
+//     while(arm.arm.getSelectedSensorPosition() < -0){ 
+//       double forward = -driver.getLeftY();
+//       double turn = -driver.getRightX()*Constant.speedMultiplier;
+//       //speedMultiplier = .2;
+//       //RightAdjust = .2;
+//       double driveLeftPower = forward*Constant.speedMultiplier - turn;
+//       double driveRightPower = forward*RightAdjust + turn;
+     
       
-     double driveLeftPower = forward*Constant.speedMultiplier - turn;
-     double driveRightPower = forward*RightAdjust + turn;
+      
+//       driveLeftA.set(ControlMode.PercentOutput, driveLeftPower);
+//       driveRightA.set(ControlMode.PercentOutput, driveRightPower);
+//     arm.arm.set(ControlMode.PercentOutput, .2); // yeserdy was set to .35
+//     }
+//   //  else{
+//     arm.arm.set(ControlMode.PercentOutput, 0);
+//   // }
+// }
+  // public void armDown(){
+  //  // arm.set(ControlMode.Position, 0);
+  //   SmartDashboard.putString("arm position", "down");
+  //   while(arm.arm.getSelectedSensorPosition() > -85000){ 
+  //    arm.arm.set(ControlMode.PercentOutput, -.2); // yesterday as set to -.4
+  //    double forward = -driver.getLeftY();
+
+  //    double turn = -driver.getRightX()*Constant.speedMultiplier;
+  //    //speedMultiplier = .2;
+  //     //RightAdjust = .2;
+      
+  //    double driveLeftPower = forward*Constant.speedMultiplier - turn;
+  //    double driveRightPower = forward*RightAdjust + turn;
     
      
      
-     driveLeftA.set(ControlMode.PercentOutput, driveLeftPower);
-     driveRightA.set(ControlMode.PercentOutput, driveRightPower);
-     }
-  //  else{
-     arm.arm.set(ControlMode.PercentOutput, 0);
-  //   }
-  }
+  //    driveLeftA.set(ControlMode.PercentOutput, driveLeftPower);
+  //    driveRightA.set(ControlMode.PercentOutput, driveRightPower);
+  //    }
+  // //  else{
+  //    arm.arm.set(ControlMode.PercentOutput, 0);
+  // //   }
+  // }
 
   public void leftAuton(){
   //starting on the left side

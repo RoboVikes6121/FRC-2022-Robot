@@ -23,19 +23,17 @@ public class Constant {
     boolean goup = false;
     double autoStart = 0;
     boolean goForAuto = false;
-    final int button13 = 13;
-    static double speedMultiplier = 0.7;
-    static double shooterSpeed = 0.9;
+    static final int button13 = 13;
+    public static final double speedMultiplier = 0.7;
+    public static final double shooterSpeed = 0.9;
+    public static final double slowShootSpeed = 0.5;
+    public static final String kMiddleAuton = "Middle Auton";
+    public static final String kLeftAuton = "Left Auton";
+    public static final String kRightAuton = "Right Auton";
+    public static final String kCenterAuton = "Center Auton";
 
     
-    public void intakeBall(){
 
-        //intake.set(ControlMode.PercentOutput, .5); // ohm nom
-    
-      }
-      // public void stopIntake(){
-      //  intake.set(ControlMode.PercentOutput, 0);
-      // }
      
   
 }
